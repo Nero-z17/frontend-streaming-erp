@@ -24,12 +24,12 @@ export default defineConfig({
         display: 'standalone', // C'est ça qui enlève la barre de recherche (Mode App)
         icons: [
           {
-            src: './public/logo1.png',
+            src: 'logo1.png',
             sizes: '804x838',
             type: 'image/png'
           },
           {
-            src: './public/logo2.png',
+            src: 'logo2.png',
             sizes: '377x382',
             type: 'image/png'
           }
