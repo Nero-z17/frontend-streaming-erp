@@ -10,7 +10,7 @@ const ProfileOccupancy = ({ platform, used, total }) => {
         <div className="flex items-center gap-3">
           {/* Petit indicateur visuel : Vert s'il y a des clients, Gris si c'est à 0 */}
           <div className={`w-2.5 h-2.5 rounded-full ${used > 0 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-          <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{platform}</span>
+          <span className="text-sm font-[500] text-gray-700 dark:text-gray-200">{platform}</span>
         </div>
         <span className="text-sm font-bold text-blue-700 md:text-20 bg-blue-100 px-3 py-1.5 rounded-full shadow-sm">
           {used} client(s)
