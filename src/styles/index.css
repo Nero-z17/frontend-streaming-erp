@@ -1,0 +1,14 @@
+/* src/index.css */
+
+@import "tailwindcss";
+
+/* On active le Dark Mode manuel par classe pour Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html.dark{
+    color-scheme: dark;
+}
+
+html{
+    color-scheme: light;
+}
