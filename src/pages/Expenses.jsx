@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useExpenses } from '../hooks/useExpenses';
+import { useExpenses } from '../hooks/UseExpenses';
 import ExpenseModal from '../components/expenses/ExpenseModal';
 import DeleteExpenseModal from '../components/expenses/DeleteExpenseModal';
 
