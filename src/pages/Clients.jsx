@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { useClients } from '../hooks/useClients';
+import { useClients } from '../hooks/UseClients';
 import ClientDetailModal from '../components/clients/ClientDetailModal';
 import ClientRow from '../components/clients/ClientRow';
 import ClientCard from '../components/clients/ClientCard'; // NOUVEAU

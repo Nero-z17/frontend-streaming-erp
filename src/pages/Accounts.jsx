@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAccounts } from '../hooks/useAccounts'; // J'ai corrigé la majuscule de l'import au cas où
+import { useAccounts } from '../hooks/UseAccounts'; // J'ai corrigé la majuscule de l'import au cas où
 import AccountProfileModal from '../components/accounts/AccountProfileModal';
 import api from '../services/api';
 import logoN from '../assets/netflix.webp'; 

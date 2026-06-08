@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDashboard } from '../hooks/useDashboard';
+import { useDashboard } from '../hooks/UseDashboard';
 import StatCard from '../components/dashboard/StatCard';
 import ProfileOccupancy from '../components/dashboard/ProfileOccupancy';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
