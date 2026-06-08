@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useContext } from 'react';
-import Login from './pages/Login';
+import Login from './pages/login';
 import Layout from './components/common/Layout'; // Ton layout
 
 // Pages (Tu devras créer ces fichiers dans src/pages/)
