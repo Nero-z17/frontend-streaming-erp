@@ -148,7 +148,13 @@ const Clients = () => {
         </div>
       </div>
 
-      {loading ? <p className="animate-pulse text-gray-500 text-center py-10">Chargement...</p> : (
+      {loading ? (
+        <div className="animate-pulse text-gray-500 text-center py-10">Chargement...</div>
+      ) : clients.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-xl text-center text-gray-400 border border-gray-100 dark:border-gray-700">
+          Aucun client enregistré.
+        </div>
+      ) : (
         <div className="space-y-6">
           {Object.entries(groupedData).map(([platform, accounts]) => (
             <div key={platform} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
