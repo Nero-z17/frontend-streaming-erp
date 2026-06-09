@@ -10,7 +10,7 @@ const Dashboard = () => {
   const handleWhatsAppRelance = (client, platform, endDate) => {
     const cleanNumber = client.whatsapp_number_clt.replace(/\D/g, '');
     const dateFin = new Date(endDate).toLocaleDateString('fr-FR');
-    const message = `Bonjour ${client.name_clt} 👋,\n\nSauf erreur de notre part, votre abonnement *${platform}* arrive à expiration le *${dateFin}*.\n\nSouhaitez-vous le renouveler pour éviter toute coupure ? 🍿`;
+    const message = `Bonjour ${client.name_clt}👋,\n\n,Nous vous informons que votre abonnement ${platform} arrive à expiration le *${dateFin}*.\n\nAfin de continuer à profiter de nos services de streaming, nous vous invitons à procéder à son renouvellement dans les plus brefs délais.\n\nCordialement.`;
     window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
