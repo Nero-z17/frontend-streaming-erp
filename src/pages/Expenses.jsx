@@ -83,7 +83,7 @@ const Expenses = () => {
               {/* Tableau du mois */}
               {/* vue bureau*/}
               <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-left table-fixed border-collapse min-w-[800px]">
+                <table className="w-full text-left table-fixed border-collapse min-w-200">
                   <thead className="bg-gray-100 dark:bg-gray-700/50 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-gray-700">
                     <tr>
                       <th className="px-4 py-4 font-bold w-[15%] text-left align-middle">Date</th>

@@ -92,7 +92,7 @@ const Dashboard = () => {
       </div>
 
       {/* SECTION 2 : Graphique d'évolution */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100  dark:border-gray-700">
         <h2 className="font-bold text-gray-800 dark:text-gray-100 mb-6">Évolution du Bénéfice Net</h2>
         <ResponsiveContainer width="99%" height={300}>
           <AreaChart data={stats?.evolution || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -116,7 +116,7 @@ const Dashboard = () => {
 
       {/* SECTION 3 & 4 : Taux d'occupation et Alertes (Identique à avant) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:border-gray-700 h-fit">
+        <div className="lg:col-span-1 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-fit">
           <h2 className="font-bold text-gray-800 dark:text-gray-100 mb-6">Taux d'occupation</h2>
           {occupancy.length > 0 ? (
             occupancy.map(occ => (
@@ -132,7 +132,7 @@ const Dashboard = () => {
           )}
         </div>
 
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 dark:border-gray-700 overflow-hidden">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="p-4 md:p-5 border-b border-orange-100 dark:border-orange-800/50 bg-orange-50 dark:bg-orange-900/20 flex justify-between items-center rounded-t-xl">
             {/* Titre responsive : on masque "sous 7 jours" sur mobile pour gagner de la place */}
             <h2 className="font-bold text-sm md:text-base text-orange-800 dark:text-orange-200">
@@ -163,7 +163,7 @@ const Dashboard = () => {
                     const platformName = sub.Profiles?.Accounts?.platform_acct || 'Service';
                     return (
                       <tr key={sub.id_subs} className="hover:bg-orange-50 dark:hover:bg-orange-900/50 dark:bg-orange-900/30/50 transition">
-                        <td className="p-4 font-medium text-gray-900 dark:text-gray-50 dark:text-white">{sub.Clients?.name_clt || 'Inconnu'}</td>
+                        <td className="p-4 font-medium text-gray-900 dark:text-gray-50 ">{sub.Clients?.name_clt || 'Inconnu'}</td>
                         <td className="p-4 text-sm text-gray-600 dark:text-gray-300 font-bold">{platformName}</td>
                         <td className="p-4 text-sm text-red-500 dark:text-red-400  font-bold">
                           {new Date(sub.end_date_subs).toLocaleDateString('fr-FR')}
@@ -191,7 +191,7 @@ const Dashboard = () => {
                     <p className="text-xs text-gray-500">{sub.Profiles?.Accounts?.platform_acct || 'Service'} • <span className="text-red-500 font-bold">{new Date(sub.end_date_subs).toLocaleDateString()}</span></p>
                   </div>
                     <button 
-                      onClick={() => handleWhatsAppRelance(sub.Clients, platformName, sub.end_date_subs)}
+                      onClick={() => handleWhatsAppRelance(sub.Clients, sub.Profiles?.Accounts?.platform_acct, sub.end_date_subs)}
                       className="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-200 transition"
                     >
                       📱 Relancer
