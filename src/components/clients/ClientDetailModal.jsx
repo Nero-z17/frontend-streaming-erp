@@ -90,17 +90,6 @@ const ClientDetailModal = ({ client, onClose, onUpdate }) => {
     }
   };
 
-  const handleWhatsAppRelance = (sub) => {
-    const cleanNumber = client.whatsapp_number_clt.replace(/\D/g, '');
-    const dateFin = new Date(sub.end_date_subs).toLocaleDateString('fr-FR');
-    const plateforme = sub.Profiles?.Accounts?.platform_acct || 'votre service';
-    
-    // Message pré-rempli pour WhatsApp
-    const message = `Bonjour ${client.name_clt} 👋,\n\nSauf erreur de notre part, votre abonnement *${plateforme}* arrive à expiration le *${dateFin}*.\n\nSouhaitez-vous le renouveler pour éviter toute coupure ? 🍿`;
-    
-    const waUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
-    window.open(waUrl, '_blank');
-  };
 
   const handleUpdateSubSubmit = async (e) => {
     e.preventDefault();
@@ -251,9 +240,6 @@ return (
                             💸 Terminer paiement
                           </button>
                         )}
-                        <button onClick={() => handleWhatsAppRelance(sub)} className="bg-green-50 text-green-700 dark:text-green-300 hover:bg-green-100 dark:bg-green-900/40 px-3 py-1.5 rounded text-xs font-bold transition">
-                          📱 Relance WhatsApp
-                        </button>
                         
                         {/* LE NOUVEAU BOUTON MODIFIER QUI ACTIVE LE FORMULAIRE */}
                         <button 
