@@ -236,24 +236,32 @@ return (
 
                       <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100 dark:border-gray-700 dark:border-gray-700">
                         {resteAPayer > 0 && (
-                          <button onClick={() => handleCompletePayment(sub)} className="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded text-xs font-bold transition">
-                            💸 Terminer paiement
+                          <button onClick={() => handleCompletePayment(sub)} className="bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 flex-shrink-0">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h16.5a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Zm1.5 3h13.5m-13.5 3h13.5m-13.5 3h13.5" />
+                            </svg>
+                            <span>Terminer paiement</span>
                           </button>
                         )}
-                        
-                        {/* LE NOUVEAU BOUTON MODIFIER QUI ACTIVE LE FORMULAIRE */}
+
                         <button 
                           onClick={() => setEditingSub({
                             ...sub, 
-                            start_date_subs: new Date(sub.start_date_subs).toISOString().split('T')[0] // Formate la date pour l'input type="date"
+                            start_date_subs: new Date(sub.start_date_subs).toISOString().split('T')[0]
                           })} 
-                          className="bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 dark:bg-gray-600 px-3 py-1.5 rounded text-xs font-bold transition"
+                          className="bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1.5"
                         >
-                          ✏️ Modifier
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 flex-shrink-0 text-gray-500">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                          </svg>
+                          <span>Modifier</span>
                         </button>
-                        
-                        <button onClick={() => handleDeleteSub(sub.id_subs)} className="bg-red-50 text-red-700 hover:bg-red-100 px-3 py-1.5 rounded text-xs font-bold transition ml-auto">
-                          🗑️ Supprimer
+
+                        <button onClick={() => handleDeleteSub(sub.id_subs)} className="bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 px-3 py-1.5 rounded text-xs font-bold transition ml-auto flex items-center gap-1.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 flex-shrink-0">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                          </svg>
+                          <span>Supprimer</span>
                         </button>
                       </div>
                     </div>
