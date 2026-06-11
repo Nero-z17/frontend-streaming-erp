@@ -203,8 +203,8 @@ return (
                     <div key={sub.id_subs} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm p-4 rounded-xl flex flex-col gap-3 hover:border-gray-300 dark:border-gray-600 dark:bg-gray-800 transition">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-bold text-gray-900 dark:text-gray-50 dark:text-white text-lg">
-                            {sub.Profiles?.Accounts?.platform_acct} <span className="text-gray-400 mx-1">|</span> <span className="text-blue-600">{sub.Profiles?.name_profil}</span>
+                          <p className="font-bold text-gray-900  dark:text-white text-lg">
+                            {sub.Profiles?.Accounts?.platform_acct} <span className="text-gray-400 mx-1">|</span> <span className="text-gray-200 font-medium">{sub.Profiles?.Accounts?.email_acct}</span > <span className="text-blue-600">{sub.Profiles?.name_profil}</span>
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Valide du <span className="font-medium text-gray-700 dark:text-gray-200">{new Date(sub.start_date_subs).toLocaleDateString('fr-FR')}</span> au <span className="font-medium text-gray-700 dark:text-gray-200">{new Date(sub.end_date_subs).toLocaleDateString('fr-FR')}</span>
