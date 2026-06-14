@@ -36,7 +36,7 @@ const Settings = () => {
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Backup_StreamingERP_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `Backup_Nero_ERP_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -144,7 +144,7 @@ const Settings = () => {
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(clientsData), "Annuaire Clients");
 
       // Ajustement global (optionnel mais propre) : Excel auto-détectera les colonnes
-      XLSX.writeFile(wb, `Rapport_Gestion_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.xlsx`);
+      XLSX.writeFile(wb, `Rapport_Gestion_Nero_ERP_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.xlsx`);
 
     } catch (error) {
       alert("Erreur lors de la génération du fichier Excel");

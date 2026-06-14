@@ -69,9 +69,12 @@ export const useDashboard = () => {
 
       // On recalcule le mois en cours APRES avoir ajouté le prix des comptes
       const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-      const currentMonthData = evolutionData.find(m => m.name === currentMonthKey) 
-        || evolutionData[evolutionData.length - 1] 
-        || { revenue: 0, expenses: 0, profit: 0 };
+
+      // On cherche précisément le mois actuel. S'il n'y a ni vente ni dépense ce mois-ci, 
+      // on renvoie un mois vide pour ne pas afficher accidentellement un mois du futur !
+      const currentMonthData = evolutionData.find(m => m.name === currentMonthKey)
+        || { name: currentMonthKey, revenue: 0, expenses: 0, profit: 0 };
+
 
       // On recalcule les totaux globaux avec ces NOUVELLES données (Dépenses backend + Comptes)
       const globalRevenue = evolutionData.reduce((acc, curr) => acc + (Number(curr.revenue) || 0), 0);
