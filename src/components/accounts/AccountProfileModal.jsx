@@ -131,21 +131,48 @@ return (
                       );
                     }
 
-                    // MODE AFFICHAGE NORMAL
-                    return (
-                      <div key={prof.id_profil} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm p-3.5 rounded-xl flex justify-between items-center hover:border-gray-300 dark:border-gray-600 dark:bg-gray-800 transition">
-                        <div className="flex items-center gap-3">
-                          <span className="font-bold text-gray-900 dark:text-gray-50 dark:text-white">{prof.name_profil}</span>
-                          {prof.pin_code_profil && (
-                            <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs font-mono font-medium">PIN: {prof.pin_code_profil}</span>
-                          )}
+                      // MODE AFFICHAGE NORMAL
+                      const clientCount = prof._count?.Subscriptions || prof.Subscriptions?.length || 0;
+
+                      return (
+                        <div key={prof.id_profil} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center gap-3 hover:border-gray-300 dark:border-gray-600 transition">
+                          
+                          {/* Section Gauche (Nom & PIN) */}
+                          <div className="flex items-center gap-3 sm:flex-1">
+                            <span className="font-bold text-gray-900 dark:text-white truncate">{prof.name_profil}</span>
+                            {prof.pin_code_profil && (
+                              <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs font-mono font-medium shrink-0">
+                                PIN: {prof.pin_code_profil}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Section Milieu & Droite (Adaptative Mobile/PC) */}
+                          <div className="flex items-center justify-between sm:flex-1 sm:justify-end gap-3 border-t border-gray-100 dark:border-gray-700 pt-3 sm:border-0 sm:pt-0">
+                            
+                            {/* Section Milieu (Badge Compteur) */}
+                            <div className="flex sm:justify-center sm:flex-1">
+                              <span className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 px-2.5 py-1 rounded-md text-xs font-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 shrink-0">
+                                  <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
+                                </svg>
+                                {clientCount} client{clientCount !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+
+                            {/* Section Droite (Boutons Actions) */}
+                            <div className="flex gap-2 shrink-0">
+                              <button onClick={() => setEditingProfile(prof)} className="text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 text-xs font-bold px-2.5 py-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg transition">
+                                Modifier
+                              </button>
+                              <button onClick={() => handleDelete(prof.id_profil)} className="text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 text-xs font-bold px-2.5 py-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg transition">
+                                Supprimer
+                              </button>
+                            </div>
+                          </div>
+
                         </div>
-                        <div className="flex gap-2">
-                          <button onClick={() => setEditingProfile(prof)} className="text-gray-500 dark:text-gray-400 hover:text-orange-600 text-sm font-bold px-2 py-1 bg-gray-50 dark:bg-gray-900 rounded">Modifier</button>
-                          <button onClick={() => handleDelete(prof.id_profil)} className="text-gray-500 dark:text-gray-400 hover:text-red-600 text-sm font-bold px-2 py-1 bg-gray-50 dark:bg-gray-900 rounded">Supprimer</button>
-                        </div>
-                      </div>
-                    );
+                      );
                   })
                 )}
               </div>

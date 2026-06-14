@@ -170,10 +170,15 @@ const Clients = () => {
               
               {Object.entries(accounts).map(([accountEmail, subs]) => (
                 <div key={accountEmail} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
-                  <div className="bg-gray-100 dark:bg-gray-700/50 px-4 py-2 font-mono text-xs md:text-sm text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                    Compte : <span className="font-bold text-gray-800 dark:text-gray-100 break-all">{accountEmail}</span>
+                  <div className="bg-gray-100 dark:bg-gray-700/50 px-4 py-2 font-mono text-xs md:text-sm text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center gap-3">
+                    <div className="truncate">
+                      Compte : <span className="font-bold text-gray-800 dark:text-gray-100">{accountEmail}</span>
+                    </div>
+                    <span className="flex-shrink-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-md text-[10px] md:text-xs font-bold shadow-sm">
+                      {subs.length} client{subs.length > 1 ? 's' : ''}
+                    </span>
                   </div>
-                  
+
                   {/* AFFICHAGE DESKTOP (Tableau classique) */}
                   <div className="hidden md:block">
                     <table className="w-full text-left table-fixed">
