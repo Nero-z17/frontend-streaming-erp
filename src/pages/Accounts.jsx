@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAccounts } from '../hooks/useAccounts'; 
+import { useAccounts } from '../hooks/UseAccounts'; 
 import AccountProfileModal from '../components/accounts/AccountProfileModal';
 import api from '../services/api';
 import logoN from '../assets/netflix.webp'; 
