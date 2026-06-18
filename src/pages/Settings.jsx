@@ -1,4 +1,3 @@
-// src/pages/Settings.jsx
 import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
@@ -24,7 +23,6 @@ const Settings = () => {
     };
   };
 
-  // 1. EXPORT JSON (La vraie sauvegarde technique)
   const handleExportJSON = async () => {
     try {
       setIsExporting(true);
@@ -48,8 +46,6 @@ const Settings = () => {
     }
   };
 
-  // 2. EXPORT EXCEL (Pour la lecture humaine et la comptabilité)
-    // 2. EXPORT EXCEL (Structuré, Trié et Hiérarchisé)
   const handleExportExcel = async () => {
     try {
       setIsExporting(true);
@@ -58,7 +54,7 @@ const Settings = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // --- 1. ABONNEMENTS (Classés par Plateforme PUIS par Compte Parent) ---
+      // --- 1. ABONNEMENTS ---
       let subsData = data.subscriptions.map(s => {
         const endDate = new Date(s.end_date_subs);
         const startDate = new Date(s.start_date_subs);
@@ -68,14 +64,12 @@ const Settings = () => {
         else if (startDate > today) statutAbo = "À venir";
 
         const resteAPayer = s.agreed_price_subs - s.amount_paid_subs;
-        
-        // Récupération sécurisée pour le tri
         const platformName = s.Profiles?.Accounts?.platform_acct || 'INCONNU';
         const accountEmail = s.Profiles?.Accounts?.email_acct || 'INCONNU';
 
         return {
           'Plateforme': platformName,
-          'Compte Parent': accountEmail, // NOUVEAU : Indispensable pour savoir où est le client
+          'Compte Parent': accountEmail, 
           'Écran': s.Profiles?.name_profil || '-',
           'Client': s.Clients?.name_clt || 'Inconnu',
           'Statut Abonnement': statutAbo,
@@ -88,36 +82,33 @@ const Settings = () => {
         };
       });
 
-      // Tri chirurgical : 1. Plateforme (Alphabétique) -> 2. Email du compte
       subsData.sort((a, b) => {
         if (a['Plateforme'] !== b['Plateforme']) return a['Plateforme'].localeCompare(b['Plateforme']);
         return a['Compte Parent'].localeCompare(b['Compte Parent']);
       });
 
-      // --- 2. COMPTES FOURNISSEURS (Classés par Plateforme) ---
+      // --- 2. COMPTES FOURNISSEURS ---
       let accountsData = data.accounts.map(a => ({
         'Plateforme': a.platform_acct,
         'Email': a.email_acct,
         'Mot de passe': a.password_acct,
+        'Mot de passe Gmail': a.mdp_gmail_acct || '-', 
+        'Carte Visa': a.visa_acct || '-',           
         'Prix d\'achat (FCFA)': a.purchase_price_acct,
         'Renouvellement': new Date(a.renewal_date_acct).toLocaleDateString('fr-FR')
       }));
       
-      // Tri : Plateforme (Alphabétique)
       accountsData.sort((a, b) => a['Plateforme'].localeCompare(b['Plateforme']));
 
-      // --- 3. DÉPENSES (Classées par Mois) ---
-      // On trie d'abord par date chronologique
+      // --- 3. DÉPENSES ---
       let sortedExpenses = [...data.expenses].sort((a, b) => new Date(a.date_exp) - new Date(b.date_exp));
-      
       let expensesData = sortedExpenses.map(e => {
         const date = new Date(e.date_exp);
-        // Création du label du mois (ex: "Juin 2026") comme sur ta page Dépenses
         const monthYear = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
         const formattedMonth = monthYear.charAt(0).toUpperCase() + monthYear.slice(1); 
 
         return {
-          'Mois': formattedMonth, // NOUVEAU : La colonne qui permet le groupement
+          'Mois': formattedMonth, 
           'Date Exacte': date.toLocaleDateString('fr-FR'),
           'Catégorie': e.category_exp,
           'Description': e.description_exp || '-',
@@ -125,7 +116,7 @@ const Settings = () => {
         };
       });
 
-      // --- 4. CLIENTS (Classés par ordre Alphabétique) ---
+      // --- 4. CLIENTS ---
       let clientsData = data.clients.map(c => ({
         'Nom / Pseudo': c.name_clt,
         'WhatsApp': c.whatsapp_number_clt,
@@ -134,16 +125,12 @@ const Settings = () => {
       }));
       clientsData.sort((a, b) => a['Nom / Pseudo'].localeCompare(b['Nom / Pseudo']));
 
-      // Création du classeur Excel
       const wb = XLSX.utils.book_new();
-
-      // Ajout des feuilles dans le bon ordre
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(subsData), "Tous les Abonnements");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(accountsData), "Comptes Fournisseurs");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expensesData), "Dépenses");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(clientsData), "Annuaire Clients");
 
-      // Ajustement global (optionnel mais propre) : Excel auto-détectera les colonnes
       XLSX.writeFile(wb, `Rapport_Gestion_Nero_ERP_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.xlsx`);
 
     } catch (error) {
@@ -153,7 +140,6 @@ const Settings = () => {
       setIsExporting(false);
     }
   };
-
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto pb-24 relative">
@@ -194,7 +180,6 @@ const Settings = () => {
           Téléchargez l'intégralité de votre base de données. Le format Excel intègre tout votre historique classé par statut. Le format JSON sert de sauvegarde système.
         </p>
         
-        {/* LES DEUX BOUTONS D'EXPORTATION SONT BIEN LÀ */}
         <div className="flex flex-col sm:flex-row gap-4">
           <button 
             onClick={handleExportExcel}

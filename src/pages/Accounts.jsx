@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAccounts } from '../hooks/UseAccounts'; // J'ai corrigé la majuscule de l'import au cas où
+import { useAccounts } from '../hooks/useAccounts'; 
 import AccountProfileModal from '../components/accounts/AccountProfileModal';
 import api from '../services/api';
 import logoN from '../assets/netflix.webp'; 
@@ -14,7 +14,7 @@ const Accounts = () => {
   const [editingAccount, setEditingAccount] = useState(null); 
   
   const [formData, setFormData] = useState({
-    platform_acct: 'NETFLIX', email_acct: '', password_acct: '', purchase_price_acct: '', renewal_date_acct: ''
+    platform_acct: 'NETFLIX', email_acct: '', password_acct: '', purchase_price_acct: '', renewal_date_acct: '', mdp_gmail_acct: '', visa_acct: ''
   });
   const [formError, setFormError] = useState('');
 
@@ -25,7 +25,7 @@ const Accounts = () => {
     setFormError('');
     const result = await addAccount(formData);
     if (result.success) {
-      setFormData({ platform_acct: 'NETFLIX', email_acct: '', password_acct: '', purchase_price_acct: '', renewal_date_acct: '' });
+      setFormData({ platform_acct: 'NETFLIX', email_acct: '', password_acct: '', purchase_price_acct: '', renewal_date_acct: '', mdp_gmail_acct: '', visa_acct: ''});
       setShowAddModal(false); 
       window.location.reload(); 
     } else { setFormError(result.error); }
@@ -50,7 +50,9 @@ const Accounts = () => {
         email_acct: editingAccount.email_acct,
         password_acct: editingAccount.password_acct,
         purchase_price_acct: editingAccount.purchase_price_acct,
-        renewal_date_acct: editingAccount.renewal_date_acct
+        renewal_date_acct: editingAccount.renewal_date_acct,
+        mdp_gmail_acct: editingAccount.mdp_gmail_acct,
+        visa_acct: editingAccount.visa_acct
       });
       setEditingAccount(null);
       window.location.reload();
@@ -101,6 +103,7 @@ const Accounts = () => {
       >
         <span className="text-3xl font-light mb-1">+</span>
       </button>
+
       {/* LISTE DES COMPTES */}
       {loading ? (
         <div className="text-gray-500 dark:text-gray-400 animate-pulse text-center py-10">Chargement de vos comptes...</div>
@@ -113,12 +116,12 @@ const Accounts = () => {
           {Object.entries(groupedAccounts).map(([platform, platformAccounts]) => (
             <div key={platform} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
               
-              {/* EN-TÊTE DE LA PLATEFORME (Couleur corrigée) */}
+              {/* EN-TÊTE DE LA PLATEFORME */}
               <div className="bg-blue-500 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 flex items-center gap-3">
                 {platformLogos[platform] && (
                     <img src={platformLogos[platform]} alt={platform} className="w-8 h-8 md:w-12 md:h-12 object-contain" />
                 )}
-                <h2 className="text-base md:text-lg font-bold text-gray-100  uppercase tracking-wider">{platform}</h2>
+                <h2 className="text-base md:text-lg font-bold text-gray-100 uppercase tracking-wider">{platform}</h2>
                 <span className={`ml-auto px-2.5 py-1 rounded-md text-xs font-bold border ${platformColors[platform] || 'bg-gray-100 dark:bg-gray-700'}`}>
                   {platformAccounts.length} compte(s)
                 </span>
@@ -129,11 +132,12 @@ const Accounts = () => {
                 <table className="w-full text-left table-fixed border-collapse">
                   <thead className="bg-gray-50 dark:bg-gray-900 text-xs text-gray-400 uppercase border-b border-gray-100 dark:border-gray-700">
                     <tr>
-                      <th className="px-4 py-4 font-medium w-[25%] text-left align-middle">Email de connexion</th>
-                      <th className="px-4 py-4 font-medium w-[20%] text-left align-middle">Mot de passe</th>
+                      <th className="px-4 py-4 font-medium w-[20%] text-left align-middle">Email de connexion</th>
+                      <th className="px-4 py-4 font-medium w-[15%] text-left align-middle">Mot de passe</th>
+                      <th className="px-4 py-4 font-medium w-[20%] text-left align-middle">Sécurité & Paiement</th>
                       <th className="px-4 py-4 font-medium w-[15%] text-left align-middle">Renouvellement</th>
-                      <th className="px-4 py-4 font-medium w-[15%] text-left align-middle">Prix d'achat</th>
-                      <th className="px-4 py-4 font-medium w-[25%] text-right align-middle">Actions</th>
+                      <th className="px-4 py-4 font-medium w-[10%] text-left align-middle">Prix</th>
+                      <th className="px-4 py-4 font-medium w-[20%] text-right align-middle">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -141,12 +145,26 @@ const Accounts = () => {
                       <tr key={acc.id_acct} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition">
                         <td className="px-4 py-4 font-bold text-gray-900 dark:text-white text-left align-middle truncate">{acc.email_acct}</td>
                         <td className="px-4 py-4 text-sm font-mono text-gray-500 dark:text-gray-400 text-left align-middle truncate">{acc.password_acct}</td>
+                        <td className="px-4 py-4 align-middle">
+                          <div className="flex flex-col gap-1.5">
+                            {acc.mdp_gmail_acct ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-700 font-mono w-max">
+                                📧 {acc.mdp_gmail_acct}
+                              </span>
+                            ) : <span className="text-[10px] text-gray-400 italic">Pas de Gmail</span>}
+                            {acc.visa_acct ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/50 font-mono w-max">
+                                💳 {acc.visa_acct}
+                              </span>
+                            ) : <span className="text-[10px] text-gray-400 italic">Pas de Visa</span>}
+                          </div>
+                        </td>
                         <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300 text-left align-middle">{new Date(acc.renewal_date_acct).toLocaleDateString('fr-FR')}</td>
-                        <td className="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 text-left align-middle">{acc.purchase_price_acct} FCFA</td>
+                        <td className="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 text-left align-middle">{acc.purchase_price_acct}</td>
                         <td className="px-4 py-4 align-middle">
                           <div className="flex justify-end gap-2">
-                            <button onClick={() => setSelectedAccount(acc)} className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-200 transition">Gérer Profils</button>
-                            <button onClick={() => setEditingAccount({...acc, renewal_date_acct: new Date(acc.renewal_date_acct).toISOString().split('T')[0]})} className="bg-orange-100 text-orange-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-orange-200 transition">Modifier</button>
+                            <button onClick={() => setSelectedAccount(acc)} className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-200 transition">Profils</button>
+                            <button onClick={() => setEditingAccount({...acc, renewal_date_acct: new Date(acc.renewal_date_acct).toISOString().split('T')[0]})} className="bg-orange-100 text-orange-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-orange-200 transition">Éditer</button>
                             <button onClick={() => handleDeleteAccount(acc.id_acct)} className="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-200 transition">Supprimer</button>
                           </div>
                         </td>
@@ -159,13 +177,25 @@ const Accounts = () => {
               {/* VUE MOBILE (Cartes) */}
               <div className="md:hidden flex flex-col gap-3 p-3 bg-gray-50/50 dark:bg-gray-900/20">
                 {platformAccounts.map((acc) => (
-                  <div key={acc.id_acct} className="bg-white shadow-sm border-3 border-blue-500 dark:bg-gray-800 p-4 rounded-xl dark:border-gray-700  flex flex-col gap-2">
+                  <div key={acc.id_acct} className="bg-white shadow-sm border-3 border-blue-500 dark:bg-gray-800 p-4 rounded-xl dark:border-gray-700 flex flex-col gap-2">
                     <div className="flex justify-between items-start gap-2">
                       <span className="font-bold text-gray-900 dark:text-gray-100 break-all">{acc.email_acct}</span>
                       <span className="text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded whitespace-nowrap">{acc.purchase_price_acct} FCFA</span>
                     </div>
                     <div className="text-sm font-mono text-gray-500 dark:text-gray-400">MDP: {acc.password_acct}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">Renouvellement: <span className="font-medium text-gray-700 dark:text-gray-300">{new Date(acc.renewal_date_acct).toLocaleDateString('fr-FR')}</span></div>
+                    
+                    {/* Zone technique mobile insérée ici */}
+                    <div className="mt-1 pt-2 border-t border-gray-100 dark:border-gray-700 flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-gray-500 dark:text-gray-400">Gmail:</span>
+                        <span className="font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">{acc.mdp_gmail_acct || "—"}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-gray-500 dark:text-gray-400">Visa:</span>
+                        <span className="font-mono text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">{acc.visa_acct || "—"}</span>
+                      </div>
+                    </div>
                     
                     <div className="grid grid-cols-3 gap-2 mt-2 pt-3 border-t border-gray-100 dark:border-gray-700">
                       <button onClick={() => setSelectedAccount(acc)} className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 py-2 rounded-lg text-xs font-bold transition">Profils</button>
@@ -180,8 +210,6 @@ const Accounts = () => {
           ))}
         </div>
       )}
-
-      {/* RESTE DES MODALES (Identiques, avec ajout de max-h-[90vh] et overflow pour le mobile) */}
       
       {/* MODALE D'AJOUT */}
       {showAddModal && (
@@ -218,6 +246,14 @@ const Accounts = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Renouvellement</label>
                   <input type="date" required name="renewal_date_acct" value={formData.renewal_date_acct} onChange={handleChange} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Mdp Gmail (Optionnel)</label>
+                  <input type="text" name="mdp_gmail_acct" value={formData.mdp_gmail_acct} onChange={handleChange} placeholder="Ex: Gmail123" className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none font-mono text-sm"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Carte Visa (Optionnel)</label>
+                  <input type="text" name="visa_acct" value={formData.visa_acct} onChange={handleChange} placeholder="Ex: 4500...1234" className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none font-mono text-sm"/>
                 </div>
               </div>
               <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold mt-4 transition">Enregistrer</button>
@@ -260,6 +296,14 @@ const Accounts = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Renouvellement *</label>
                   <input type="date" required value={editingAccount.renewal_date_acct} onChange={(e) => setEditingAccount({...editingAccount, renewal_date_acct: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Mdp Gmail</label>
+                  <input type="text" value={editingAccount.mdp_gmail_acct || ''} onChange={(e) => setEditingAccount({...editingAccount, mdp_gmail_acct: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none font-mono text-sm"/>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Carte Visa</label>
+                  <input type="text" value={editingAccount.visa_acct || ''} onChange={(e) => setEditingAccount({...editingAccount, visa_acct: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none font-mono text-sm"/>
                 </div>
               </div>
               <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2.5 rounded-lg font-bold transition">
