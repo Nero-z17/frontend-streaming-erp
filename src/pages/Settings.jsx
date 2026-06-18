@@ -177,7 +177,7 @@ const Settings = () => {
           Exportation & Sauvegarde
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-          Téléchargez l'intégralité de votre base de données. Le format Excel intègre tout votre historique classé par statut. Le format JSON sert de sauvegarde système.
+          Téléchargez l'intégralité de votre base de données. Le format Excel intègre tout votre historique classé par statut. Le format JSON sert de sauvegarde systeme.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4">
