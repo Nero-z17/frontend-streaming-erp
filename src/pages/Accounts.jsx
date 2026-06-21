@@ -156,7 +156,7 @@ const Accounts = () => {
                               <span className="inline-flex items-center gap-1 text-[11px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/50 font-mono w-max">
                                 💳 {acc.visa_acct}
                               </span>
-                            ) : <span className="text-[10px] text-gray-400 italic">Pas de Visa</span>}
+                            ) : <span className="text-[10px] text-gray-400 italic">Pas de Carte</span>}
                           </div>
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-300 text-left align-middle">{new Date(acc.renewal_date_acct).toLocaleDateString('fr-FR')}</td>
@@ -192,7 +192,7 @@ const Accounts = () => {
                         <span className="font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">{acc.mdp_gmail_acct || "—"}</span>
                       </div>
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-gray-500 dark:text-gray-400">Visa:</span>
+                        <span className="text-gray-500 dark:text-gray-400">Carte:</span>
                         <span className="font-mono text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">{acc.visa_acct || "—"}</span>
                       </div>
                     </div>
@@ -252,7 +252,7 @@ const Accounts = () => {
                   <input type="text" name="mdp_gmail_acct" value={formData.mdp_gmail_acct} onChange={handleChange} placeholder="Ex: Gmail123" className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none font-mono text-sm"/>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Carte Visa (Optionnel)</label>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Carte bancaire (Optionnel)</label>
                   <input type="text" name="visa_acct" value={formData.visa_acct} onChange={handleChange} placeholder="Ex: 4500...1234" className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none font-mono text-sm"/>
                 </div>
               </div>
@@ -302,7 +302,7 @@ const Accounts = () => {
                   <input type="text" value={editingAccount.mdp_gmail_acct || ''} onChange={(e) => setEditingAccount({...editingAccount, mdp_gmail_acct: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none font-mono text-sm"/>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Carte Visa</label>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Carte bancaire</label>
                   <input type="text" value={editingAccount.visa_acct || ''} onChange={(e) => setEditingAccount({...editingAccount, visa_acct: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-2 outline-none font-mono text-sm"/>
                 </div>
               </div>
