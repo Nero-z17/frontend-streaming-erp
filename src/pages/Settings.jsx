@@ -5,8 +5,12 @@ import * as XLSX from 'xlsx';
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
-  const [isExporting, setIsExporting] = useState(false);
+  
+  // Séparation stricte des états pour des boutons indépendants
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
+  const [isExportingJSON, setIsExportingJSON] = useState(false);
 
+  // Récupération classique : le backend filtre déjà pour l'admin connecté
   const fetchAllData = async () => {
     const [clientsRes, accountsRes, expensesRes, subsRes] = await Promise.all([
       api.get('/clients'),
@@ -25,8 +29,8 @@ const Settings = () => {
 
   const handleExportJSON = async () => {
     try {
-      setIsExporting(true);
-      const data = await fetchAllData();
+      setIsExportingJSON(true);
+      const data = await fetchAllData(); 
       
       const jsonString = JSON.stringify(data, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
@@ -34,7 +38,8 @@ const Settings = () => {
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Backup_Nero_ERP_${new Date().toISOString().split('T')[0]}.json`;
+      // On peut ajouter l'heure pour différencier facilement les fichiers
+      link.download = `Backup_Nero_ERP_Admin_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -42,13 +47,13 @@ const Settings = () => {
       alert("Erreur lors de l'exportation JSON");
       console.error(error);
     } finally {
-      setIsExporting(false);
+      setIsExportingJSON(false);
     }
   };
 
   const handleExportExcel = async () => {
     try {
-      setIsExporting(true);
+      setIsExportingExcel(true);
       const data = await fetchAllData();
 
       const today = new Date();
@@ -137,7 +142,7 @@ const Settings = () => {
       alert("Erreur lors de la génération du fichier Excel");
       console.error(error);
     } finally {
-      setIsExporting(false);
+      setIsExportingExcel(false);
     }
   };
 
@@ -177,26 +182,26 @@ const Settings = () => {
           Exportation & Sauvegarde
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-          Téléchargez l'intégralité de votre base de données. Le format Excel intègre tout votre historique classé par statut. Le format JSON sert de sauvegarde systeme.
+          Téléchargez vos données personnelles. Le format Excel intègre tout votre historique classé par statut. Le format JSON sert de sauvegarde système de votre compte.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4">
           <button 
             onClick={handleExportExcel}
-            disabled={isExporting}
+            disabled={isExportingExcel || isExportingJSON}
             className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-sm"
           >
             <span className="text-xl">📊</span>
-            {isExporting ? 'Génération...' : 'Exporter en Excel'}
+            {isExportingExcel ? 'Génération...' : 'Exporter en Excel'}
           </button>
           
           <button 
             onClick={handleExportJSON}
-            disabled={isExporting}
+            disabled={isExportingJSON || isExportingExcel}
             className="flex-1 bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 disabled:opacity-50 text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-sm border border-gray-700"
           >
             <span className="text-xl">💾</span>
-            {isExporting ? 'Sauvegarde...' : 'Sauvegarde JSON'}
+            {isExportingJSON ? 'Sauvegarde...' : 'Sauvegarde JSON'}
           </button>
         </div>
       </div>
