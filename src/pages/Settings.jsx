@@ -157,7 +157,7 @@ const Settings = () => {
 
       <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm transition-colors">
         <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
-          Interface et Affichages
+          Interface et Affichage
         </h2>
         
         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
