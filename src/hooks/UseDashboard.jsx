@@ -36,27 +36,39 @@ export const useDashboard = () => {
         : JSON.parse(JSON.stringify(summaryRes.data?.evolution || []));
 
       // NOUVEAU : INJECTION DES DÉPENSES DES COMPTES (Achat fournisseurs)
+      // 🧠 NOUVELLE LOGIQUE DYNAMIQUE : Étalement récurrent des charges fournisseurs
       accounts.forEach(acc => {
-        if (acc.renewal_date_acct && acc.purchase_price_acct) {
-          // On recule d'un mois par rapport à la date de renouvellement pour cibler le mois exact de l'achat
-          const rDate = new Date(acc.renewal_date_acct);
-          rDate.setMonth(rDate.getMonth() - 1);
-          const monthKey = `${rDate.getFullYear()}-${String(rDate.getMonth() + 1).padStart(2, '0')}`;
-
-          let monthData = evolutionData.find(m => m.name === monthKey);
+        if (acc.start_date_acct && acc.purchase_price_acct) {
+          const startDate = new Date(acc.start_date_acct);
+          const today = new Date();
           
-          if (monthData) {
-            // Le mois existe : on ajoute le coût du compte aux dépenses et on ajuste le bénéfice net
-            monthData.expenses += Number(acc.purchase_price_acct);
-            monthData.profit = monthData.revenue - monthData.expenses;
-          } else {
-            // Le mois n'existe pas encore dans les données, on le crée
-            evolutionData.push({
-              name: monthKey,
-              revenue: 0,
-              expenses: Number(acc.purchase_price_acct),
-              profit: -Number(acc.purchase_price_acct)
-            });
+          // On initialise un curseur au 1er jour du mois de début de l'abonnement
+          let currentCursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+          // Le point d'arrêt est le mois en cours (aujourd'hui)
+          const endCursor = new Date(today.getFullYear(), today.getMonth(), 1);
+
+          // On boucle de mois en mois, du mois de départ jusqu'au mois actuel
+          while (currentCursor <= endCursor) {
+            const monthKey = `${currentCursor.getFullYear()}-${String(currentCursor.getMonth() + 1).padStart(2, '0')}`;
+
+            let monthData = evolutionData.find(m => m.name === monthKey);
+            
+            if (monthData) {
+              // Le mois existe dans l'historique : on cumule la dépense
+              monthData.expenses += Number(acc.purchase_price_acct);
+              monthData.profit = monthData.revenue - monthData.expenses;
+            } else {
+              // Le mois n'existe pas encore (ex: mois calme sans vente) : on l'initialise
+              evolutionData.push({
+                name: monthKey,
+                revenue: 0,
+                expenses: Number(acc.purchase_price_acct),
+                profit: -Number(acc.purchase_price_acct)
+              });
+            }
+
+            // Incrémentation chirurgicale : on passe au 1er jour du mois suivant
+            currentCursor.setMonth(currentCursor.getMonth() + 1);
           }
         }
       });
