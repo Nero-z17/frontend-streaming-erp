@@ -71,7 +71,9 @@ const Accounts = () => {
         email_acct: editingAccount.email_acct,
         password_acct: editingAccount.password_acct,
         purchase_price_acct: editingAccount.purchase_price_acct,
-        start_date_acct: editingAccount.start_date_acct // MODIFIÉ ICI
+        start_date_acct: editingAccount.start_date_acct, // MODIFIÉ ICI
+        mdp_gmail_acct: editingAccount.mdp_gmail_acct,
+        visa_acct: editingAccount.visa_acct
       });
       setEditingAccount(null);
       window.location.reload();
