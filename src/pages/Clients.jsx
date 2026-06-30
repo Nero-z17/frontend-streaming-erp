@@ -3,7 +3,7 @@ import api from '../services/api';
 import { useClients } from '../hooks/UseClients';
 import ClientDetailModal from '../components/clients/ClientDetailModal';
 import ClientRow from '../components/clients/ClientRow';
-import ClientCard from '../components/clients/ClientCard'; // NOUVEAU
+import ClientCard from '../components/clients/ClientCard';
 import logoN from '../assets/netflix.webp'; 
 import logoP from '../assets/prime.avif';
 import logoC from '../assets/crunchyrool.png';
@@ -12,7 +12,6 @@ const Clients = () => {
   const { clients, loading, error, refreshClients, addClient } = useClients();
   const [subscriptions, setSubscriptions] = useState([]);
   
-  // NOUVEAU : Barre de recherche
   const [searchTerm, setSearchTerm] = useState('');
   
   const [selectedClient, setSelectedClient] = useState(null);
@@ -76,22 +75,27 @@ const Clients = () => {
     }
   };
 
-  // --- FILTRAGE DE RECHERCHE AVANT GROUPEMENT ---
+  // --- FILTRAGE DE RECHERCHE OPTIMISÉ (Espaces ignorés pour les numéros) ---
   const lowerSearch = searchTerm.toLowerCase();
+  const cleanSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase(); // Retire tous les espaces de la recherche
   
   const filteredSubs = subscriptions.filter(sub => {
     if(!searchTerm) return true;
-    return sub.Clients?.name_clt.toLowerCase().includes(lowerSearch) || 
-           sub.Clients?.whatsapp_number_clt.includes(searchTerm);
+    const clientName = (sub.Clients?.name_clt || '').toLowerCase();
+    const clientPhone = (sub.Clients?.whatsapp_number_clt || '').replace(/\s+/g, ''); // Retire les espaces du numéro DB
+    
+    return clientName.includes(lowerSearch) || clientPhone.includes(cleanSearchTerm);
   });
 
   const filteredClientsWithoutSub = clients.filter(c => {
     if(!searchTerm) return true;
-    return c.name_clt.toLowerCase().includes(lowerSearch) || 
-           c.whatsapp_number_clt.includes(searchTerm);
+    const clientName = (c.name_clt || '').toLowerCase();
+    const clientPhone = (c.whatsapp_number_clt || '').replace(/\s+/g, '');
+    
+    return clientName.includes(lowerSearch) || clientPhone.includes(cleanSearchTerm);
   });
 
-  // --- LOGIQUE DE GROUPEMENT INTACTE ---
+  // --- NOUVELLE LOGIQUE DE GROUPEMENT : Plateforme -> Compte -> Profil ---
   const groupedData = {};
   const clientsWithoutSub = [...filteredClientsWithoutSub];
 
@@ -99,10 +103,15 @@ const Clients = () => {
     if (!sub.Profiles || !sub.Profiles.Accounts || !sub.Clients) return;
     const platform = sub.Profiles.Accounts.platform_acct;
     const accountEmail = sub.Profiles.Accounts.email_acct;
+    const profileName = sub.Profiles.name_profil || "Profil Inconnu";
     
+    // Initialisation des niveaux d'imbrication
     if (!groupedData[platform]) groupedData[platform] = {};
-    if (!groupedData[platform][accountEmail]) groupedData[platform][accountEmail] = [];
-    groupedData[platform][accountEmail].push(sub);
+    if (!groupedData[platform][accountEmail]) groupedData[platform][accountEmail] = {};
+    if (!groupedData[platform][accountEmail][profileName]) groupedData[platform][accountEmail][profileName] = [];
+    
+    // Ajout du client dans le bon profil
+    groupedData[platform][accountEmail][profileName].push(sub);
     
     const index = clientsWithoutSub.findIndex(c => c.id_clt === sub.id_clt);
     if (index > -1) clientsWithoutSub.splice(index, 1);
@@ -118,15 +127,14 @@ const Clients = () => {
 
   return (
     <div className="p-4 md:p-6 space-y-6 relative">
-      {/* Header et Recherche (Adapté mobile/PC) */}
+      {/* Header et Recherche (Intacts selon ta demande) */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border-3 border-blue-500 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Clients</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm hidden md:block">Organisés par comptes et profils</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm hidden md:block">Organisés par plateformes, comptes et écrans</p>
         </div>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
-          {/* Barre de recherche */}
           <div className="relative w-full md:w-64">
             <input 
               type="text" 
@@ -140,10 +148,8 @@ const Clients = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.603 10.603Z" />
               </svg>
             </span>
-
           </div>
 
-          {/* Bouton Desktop Uniquement */}
           <button 
             onClick={() => setIsAddModalOpen(true)}
             className="hidden md:block bg-black dark:bg-white text-white dark:text-black px-5 py-2 rounded-lg font-bold transition shadow-md whitespace-nowrap"
@@ -160,69 +166,90 @@ const Clients = () => {
           Aucun client enregistré.
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
+          {/* NOUVEL AFFICHAGE IMBRIQUÉ */}
           {Object.entries(groupedData).map(([platform, accounts]) => (
             <div key={platform} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div className="bg-blue-500 dark:bg-gray-800 p-3 flex items-center gap-3 border-b border-bray-200 dark:border-gray-700">
+              
+              {/* Niveau 1 : Plateforme */}
+              <div className="bg-blue-500 dark:bg-gray-800 p-3 flex items-center gap-3 border-b border-blue-600 dark:border-gray-700">
                 {platformLogos[platform] && <img src={platformLogos[platform]} alt={platform} className="w-8 h-8 md:w-12 md:h-12 object-contain" />}
                 <h2 className="text-base md:text-lg font-bold text-white uppercase tracking-wider">{platform}</h2>
               </div>
               
-              {Object.entries(accounts).map(([accountEmail, subs]) => (
-                <div key={accountEmail} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
-                  <div className="bg-gray-100 dark:bg-gray-700/50 px-4 py-2 font-mono text-xs md:text-sm text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center gap-3">
-                    <div className="truncate">
-                      Compte : <span className="font-bold text-gray-800 dark:text-gray-100">{accountEmail}</span>
+              <div className="flex flex-col">
+                {Object.entries(accounts).map(([accountEmail, profiles]) => (
+                  <div key={accountEmail} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
+                    
+                    {/* Niveau 2 : Compte */}
+                    <div className="bg-gray-100 dark:bg-gray-700/60 px-4 py-3 font-mono text-sm text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 shadow-inner">
+                      <span className="text-gray-500 dark:text-gray-400 font-sans text-xs uppercase tracking-wider mr-2">Compte :</span>
+                      <span className="font-bold">{accountEmail}</span>
                     </div>
-                    <span className="flex-shrink-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-2.5 py-0.5 rounded-md text-[10px] md:text-xs font-bold shadow-sm">
-                      {subs.length} client{subs.length > 1 ? 's' : ''}
-                    </span>
-                  </div>
 
-                  {/* AFFICHAGE DESKTOP (Tableau classique) */}
-                  <div className="hidden md:block">
-                    <table className="w-full text-left table-fixed">
-                      <thead className="bg-white dark:bg-gray-800 text-xs text-gray-400 uppercase border-b border-gray-100 dark:border-gray-700">
-                        <tr>
-                          <th className="px-4 py-3 font-medium w-[15%]">Écran</th>
-                          <th className="px-4 py-3 font-medium w-[20%]">Client</th>
-                          <th className="px-4 py-3 font-medium w-[20%]">WhatsApp</th>
-                          <th className="px-4 py-3 font-medium w-[15%]">Note</th>
-                          <th className="px-4 py-3 font-medium w-[15%]">Statut</th>
-                          <th className="px-4 py-3 text-right font-medium w-[15%]">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {subs.map(sub => (
-                          <ClientRow 
-                            key={sub.id_subs} client={sub.Clients} sub={sub} statusAbo={getClientStatus(sub.Clients.id_clt)} 
-                            onOpenDetails={(c) => { setSelectedClient(c); setIsDetailModalOpen(true); }}
-                            onEdit={(c) => setEditingClient(c)} onDelete={handleDeleteClient}
-                          />
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                    {/* Niveau 3 : Profils (Écrans) */}
+                    <div className="p-3 md:p-5 bg-gray-50/50 dark:bg-gray-900/30 space-y-6">
+                      {Object.entries(profiles).map(([profileName, subs]) => (
+                        <div key={profileName} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+                          
+                          {/* En-tête du Profil */}
+                          <div className="bg-indigo-50/80 dark:bg-indigo-900/20 px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <svg className="w-4 h-4 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                              <span className="font-bold text-indigo-900 dark:text-indigo-300 text-sm">Écran : {profileName}</span>
+                            </div>
+                            <span className="bg-indigo-100 dark:bg-indigo-800/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-[11px] font-bold">
+                              {subs.length} client{subs.length > 1 ? 's' : ''}
+                            </span>
+                          </div>
 
-                  {/* AFFICHAGE MOBILE (Cartes empilées) */}
-                  <div className="md:hidden flex flex-col gap-3 p-3 bg-gray-50/50 dark:bg-gray-900/20">
-                     {subs.map(sub => (
-                        <ClientCard 
-                          key={sub.id_subs} client={sub.Clients} sub={sub} statusAbo={getClientStatus(sub.Clients.id_clt)}
-                          onOpenDetails={(c) => { setSelectedClient(c); setIsDetailModalOpen(true); }}
-                          onEdit={(c) => setEditingClient(c)} onDelete={handleDeleteClient}
-                        />
-                     ))}
-                  </div>
+                          {/* AFFICHAGE DESKTOP */}
+                          <div className="hidden md:block">
+                            <table className="w-full text-left table-fixed">
+                              <thead className="bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-400 uppercase border-b border-gray-100 dark:border-gray-700">
+                                <tr>
+                                  <th className="px-4 py-3 font-medium w-[15%]">Écran</th>
+                                  <th className="px-4 py-3 font-medium w-[20%]">Client</th>
+                                  <th className="px-4 py-3 font-medium w-[20%]">WhatsApp</th>
+                                  <th className="px-4 py-3 font-medium w-[15%]">Note</th>
+                                  <th className="px-4 py-3 font-medium w-[15%]">Statut</th>
+                                  <th className="px-4 py-3 text-right font-medium w-[15%]">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {subs.map(sub => (
+                                  <ClientRow 
+                                    key={sub.id_subs} client={sub.Clients} sub={sub} statusAbo={getClientStatus(sub.Clients.id_clt)} 
+                                    onOpenDetails={(c) => { setSelectedClient(c); setIsDetailModalOpen(true); }}
+                                    onEdit={(c) => setEditingClient(c)} onDelete={handleDeleteClient}
+                                  />
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
 
-                </div>
-              ))}
+                          {/* AFFICHAGE MOBILE */}
+                          <div className="md:hidden flex flex-col gap-3 p-3 bg-gray-50/50 dark:bg-gray-900/20">
+                            {subs.map(sub => (
+                                <ClientCard 
+                                  key={sub.id_subs} client={sub.Clients} sub={sub} statusAbo={getClientStatus(sub.Clients.id_clt)}
+                                  onOpenDetails={(c) => { setSelectedClient(c); setIsDetailModalOpen(true); }}
+                                  onEdit={(c) => setEditingClient(c)} onDelete={handleDeleteClient}
+                                />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
 
-          {/* MÊME LOGIQUE POUR SANS ABONNEMENT */}
+          {/* SECTION "SANS ABONNEMENT" INTACTE */}
           {clientsWithoutSub.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-orange-200 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-orange-200 dark:border-orange-900/50 overflow-hidden">
               <div className="bg-orange-50 dark:bg-orange-900/30 p-3 border-b border-orange-100 dark:border-orange-900/50">
                 <h2 className="text-base md:text-lg font-bold text-orange-800 dark:text-orange-200">En attente (Sans abonnement)</h2>
               </div>
@@ -255,18 +282,18 @@ const Clients = () => {
         <span className="text-3xl font-light mb-1">+</span>
       </button>
 
-      {/* RESTE DES MODALS INTACTS (Add/Edit Client, DetailModal) */}
+      {/* MODALS INTACTS */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Ajouter un client</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-black text-3xl leading-none">&times;</button>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-black dark:hover:text-white text-3xl leading-none">&times;</button>
             </div>
             <form onSubmit={handleSubmitNewClient} className="space-y-4">
-              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nom / Pseudo *</label><input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 outline-none" /></div>
-              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">WhatsApp *</label><input type="text" required value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+237..." className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 outline-none" /></div>
-              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Note privée</label><textarea value={note} onChange={(e) => setNote(e.target.value)} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 h-20 outline-none resize-none" /></div>
+              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nom / Pseudo *</label><input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 outline-none dark:text-white" /></div>
+              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">WhatsApp *</label><input type="text" required value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+237..." className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 outline-none dark:text-white" /></div>
+              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Note privée</label><textarea value={note} onChange={(e) => setNote(e.target.value)} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 h-20 outline-none resize-none dark:text-white" /></div>
               <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold mt-2">Créer le client</button>
             </form>
           </div>
@@ -280,15 +307,14 @@ const Clients = () => {
       {editingClient && (
          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
-             {/* Même formulaire que AddModal mais branché sur editingClient, je le garde tel quel pour ne pas rallonger, tes fonctions sont intactes */}
              <div className="flex justify-between items-center mb-5">
               <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Modifier le client</h3>
-              <button onClick={() => setEditingClient(null)} className="text-gray-400 hover:text-black text-3xl leading-none">&times;</button>
+              <button onClick={() => setEditingClient(null)} className="text-gray-400 hover:text-black dark:hover:text-white text-3xl leading-none">&times;</button>
             </div>
             <form onSubmit={handleUpdateClientSubmit} className="space-y-4">
-              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nom *</label><input type="text" required value={editingClient.name_clt} onChange={(e) => setEditingClient({...editingClient, name_clt: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 outline-none" /></div>
-              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">WhatsApp *</label><input type="text" required value={editingClient.whatsapp_number_clt} onChange={(e) => setEditingClient({...editingClient, whatsapp_number_clt: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 outline-none" /></div>
-              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Note</label><textarea value={editingClient.note_clt || ''} onChange={(e) => setEditingClient({...editingClient, note_clt: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 h-20 outline-none resize-none" /></div>
+              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nom *</label><input type="text" required value={editingClient.name_clt} onChange={(e) => setEditingClient({...editingClient, name_clt: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 outline-none dark:text-white" /></div>
+              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">WhatsApp *</label><input type="text" required value={editingClient.whatsapp_number_clt} onChange={(e) => setEditingClient({...editingClient, whatsapp_number_clt: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 outline-none dark:text-white" /></div>
+              <div><label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Note</label><textarea value={editingClient.note_clt || ''} onChange={(e) => setEditingClient({...editingClient, note_clt: e.target.value})} className="w-full border dark:border-gray-600 bg-transparent rounded-lg p-3 h-20 outline-none resize-none dark:text-white" /></div>
               <button type="submit" className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold mt-2">Sauvegarder</button>
             </form>
           </div>
@@ -299,3 +325,4 @@ const Clients = () => {
 };
 
 export default Clients;
+
