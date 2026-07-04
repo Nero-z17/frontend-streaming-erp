@@ -182,16 +182,24 @@ const Clients = () => {
                   <div key={accountEmail} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
                     
                     {/* Niveau 2 : Compte */}
-                    <div className="bg-gray-100 dark:bg-gray-700/60 px-4 py-3 font-mono text-sm text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 shadow-inner flex justify-between items-center">
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400 font-sans text-xs uppercase tracking-wider mr-2">Compte :</span>
-                        <span className="font-bold">{accountEmail}</span>
+                    <div className="bg-gray-100 dark:bg-gray-700/60 px-4 py-3 border-b border-gray-200 dark:border-gray-700 shadow-inner flex items-center justify-between gap-3">
+                      
+                      {/* Conteneur texte avec min-w-0 obligatoire pour que le truncate fonctionne */}
+                      <div className="flex flex-col sm:flex-row sm:items-center min-w-0">
+                        <span className="text-gray-500 dark:text-gray-400 font-sans text-xs uppercase tracking-wider sm:mr-2 shrink-0">
+                          Compte :
+                        </span>
+                        {/* Truncate ajoute les "..." si l'email dépasse la taille de l'écran */}
+                        <span className="font-mono text-sm font-bold text-gray-800 dark:text-gray-200 truncate">
+                          {accountEmail}
+                        </span>
                       </div>
                       
-                      {/* Badge stylisé affichant le total des clients pour ce compte */}
-                      <span className="bg-blue-600 dark:bg-blue-500 text-white px-2.5 py-1 rounded-md text-xs font-bold shadow-sm">
+                      {/* Badge protégé contre l'écrasement avec shrink-0 et whitespace-nowrap */}
+                      <span className="shrink-0 bg-blue-600 dark:bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm whitespace-nowrap">
                         {Object.values(profiles).reduce((total, subs) => total + subs.length, 0)} client(s)
                       </span>
+
                     </div>
 
                     {/* Niveau 3 : Profils (Écrans) */}
