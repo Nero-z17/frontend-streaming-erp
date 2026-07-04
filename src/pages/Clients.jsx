@@ -182,9 +182,16 @@ const Clients = () => {
                   <div key={accountEmail} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
                     
                     {/* Niveau 2 : Compte */}
-                    <div className="bg-gray-100 dark:bg-gray-700/60 px-4 py-3 font-mono text-sm text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 shadow-inner">
-                      <span className="text-gray-500 dark:text-gray-400 font-sans text-xs uppercase tracking-wider mr-2">Compte :</span>
-                      <span className="font-bold">{accountEmail}</span>
+                    <div className="bg-gray-100 dark:bg-gray-700/60 px-4 py-3 font-mono text-sm text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 shadow-inner flex justify-between items-center">
+                      <div>
+                        <span className="text-gray-500 dark:text-gray-400 font-sans text-xs uppercase tracking-wider mr-2">Compte :</span>
+                        <span className="font-bold">{accountEmail}</span>
+                      </div>
+                      
+                      {/* Badge stylisé affichant le total des clients pour ce compte */}
+                      <span className="bg-blue-600 dark:bg-blue-500 text-white px-2.5 py-1 rounded-md text-xs font-bold shadow-sm">
+                        {Object.values(profiles).reduce((total, subs) => total + subs.length, 0)} client(s)
+                      </span>
                     </div>
 
                     {/* Niveau 3 : Profils (Écrans) */}
