@@ -51,7 +51,7 @@ const Settings = () => {
     }
   };
 
-  const handleExportExcel = async () => {
+    const handleExportExcel = async () => {
     try {
       setIsExportingExcel(true);
       const data = await fetchAllData();
@@ -59,8 +59,32 @@ const Settings = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // --- 1. ABONNEMENTS ---
-      let subsData = data.subscriptions.map(s => {
+      // --- FONCTION DE CLASSEMENT PLATEFORME ---
+      const getPlatformRank = (platform) => {
+        const p = (platform || '').toUpperCase();
+        if (p.includes('CRUNCHYROLL')) return 1;
+        if (p.includes('PRIME')) return 2;
+        if (p.includes('NETFLIX')) return 3;
+        return 4; // Autres plateformes à la fin
+      };
+
+      // --- FONCTION DE CLASSEMENT STATUT ABONNEMENT ---
+      const getStatusRank = (status) => {
+        if (status === 'En cours') return 1;
+        if (status === 'À venir') return 2;
+        if (status === 'Terminé') return 3;
+        return 4;
+      };
+
+      // ==========================================
+      // 1. ABONNEMENTS (Subscription)
+      // ==========================================
+      let subsDataRaw = data.subscriptions.map(s => {
+        // Sécurisation (selon que Prisma renvoie les includes avec majuscule ou minuscule)
+        const client = s.client || s.Clients || {};
+        const profile = s.profile || s.Profiles || {};
+        const account = profile.account || profile.Accounts || {};
+
         const endDate = new Date(s.end_date_subs);
         const startDate = new Date(s.start_date_subs);
         
@@ -69,17 +93,23 @@ const Settings = () => {
         else if (startDate > today) statutAbo = "À venir";
 
         const resteAPayer = s.agreed_price_subs - s.amount_paid_subs;
-        const platformName = s.Profiles?.Accounts?.platform_acct || 'INCONNU';
-        const accountEmail = s.Profiles?.Accounts?.email_acct || 'INCONNU';
+        const platformName = account.platform_acct || 'INCONNU';
+        const accountEmail = account.email_acct || 'INCONNU';
 
         return {
+          _rawEndDate: endDate.getTime(), // Donnée invisible pour un tri parfait
+          _rawClientName: client.name_clt || 'Inconnu',
+          
           'Plateforme': platformName,
           'Compte Parent': accountEmail, 
-          'Écran': s.Profiles?.name_profil || '-',
-          'Client': s.Clients?.name_clt || 'Inconnu',
+          'Écran': profile.name_profil || '-',
+          'Mot de passe profil': profile.pin_code_profil || '-', 
+          'Client': client.name_clt || 'Inconnu',
+          'Numéro du client': client.whatsapp_number_clt || '-', 
+          'Date de création client': client.created_date_clt ? new Date(client.created_date_clt).toLocaleDateString('fr-FR') : '-', 
           'Statut Abonnement': statutAbo,
-          'Date Début': startDate.toLocaleDateString('fr-FR'),
-          'Date Fin': endDate.toLocaleDateString('fr-FR'),
+          'Date Début': !isNaN(startDate) ? startDate.toLocaleDateString('fr-FR') : '-',
+          'Date Fin': !isNaN(endDate) ? endDate.toLocaleDateString('fr-FR') : '-',
           'Prix Vendu (FCFA)': s.agreed_price_subs,
           'Montant Payé (FCFA)': s.amount_paid_subs,
           'Reste à Payer': resteAPayer > 0 ? resteAPayer : 0,
@@ -87,26 +117,78 @@ const Settings = () => {
         };
       });
 
-      subsData.sort((a, b) => {
-        if (a['Plateforme'] !== b['Plateforme']) return a['Plateforme'].localeCompare(b['Plateforme']);
-        return a['Compte Parent'].localeCompare(b['Compte Parent']);
+      // Tri multicritères absolu (Plateforme > Compte > Statut > Écran > Date Fin > Client)
+      subsDataRaw.sort((a, b) => {
+        const rankA = getPlatformRank(a['Plateforme']);
+        const rankB = getPlatformRank(b['Plateforme']);
+        if (rankA !== rankB) return rankA - rankB;
+
+        const emailCmp = a['Compte Parent'].localeCompare(b['Compte Parent']);
+        if (emailCmp !== 0) return emailCmp;
+
+        const statA = getStatusRank(a['Statut Abonnement']);
+        const statB = getStatusRank(b['Statut Abonnement']);
+        if (statA !== statB) return statA - statB;
+
+        const profCmp = a['Écran'].localeCompare(b['Écran']);
+        if (profCmp !== 0) return profCmp;
+
+        if (a._rawEndDate !== b._rawEndDate) return a._rawEndDate - b._rawEndDate;
+
+        return a._rawClientName.localeCompare(b._rawClientName);
       });
 
-      // --- 2. COMPTES FOURNISSEURS ---
-      let accountsData = data.accounts.map(a => ({
-        'Plateforme': a.platform_acct,
-        'Email': a.email_acct,
-        'Mot de passe': a.password_acct,
-        'Mot de passe Gmail': a.mdp_gmail_acct || '-', 
-        'Carte Visa': a.visa_acct || '-',           
-        'Prix d\'achat (FCFA)': a.purchase_price_acct,
-        'Renouvellement': new Date(a.renewal_date_acct).toLocaleDateString('fr-FR')
-      }));
-      
-      accountsData.sort((a, b) => a['Plateforme'].localeCompare(b['Plateforme']));
+      // Nettoyage des clés privées (_raw) avant export Excel
+      let subsData = subsDataRaw.map(item => {
+        const { _rawEndDate, _rawClientName, ...rest } = item;
+        return rest;
+      });
 
-      // --- 3. DÉPENSES ---
+
+      // ==========================================
+      // 2. COMPTES FOURNISSEURS
+      // ==========================================
+      let accountsDataRaw = data.accounts.map(a => {
+        // CORRECTION "Invalid Date" : Calcul automatique du prochain renouvellement
+        let renewalDateObj = new Date(a.start_date_acct);
+        if (!isNaN(renewalDateObj.getTime())) {
+          while (renewalDateObj < today) {
+            renewalDateObj.setMonth(renewalDateObj.getMonth() + 1); // Ajoute un mois jusqu'au cycle actuel
+          }
+        }
+
+        return {
+          _rawPlatformRank: getPlatformRank(a.platform_acct),
+          _rawRenewal: renewalDateObj.getTime() || 0,
+          
+          'Plateforme': a.platform_acct,
+          'Email': a.email_acct,
+          'Mot de passe': a.password_acct,
+          'Mot de passe Gmail': a.mdp_gmail_acct || '-', 
+          'Carte Visa': a.visa_acct || '-',           
+          'Prix d\'achat (FCFA)': a.purchase_price_acct,
+          'Renouvellement': !isNaN(renewalDateObj.getTime()) ? renewalDateObj.toLocaleDateString('fr-FR') : '-'
+        };
+      });
+      
+      // Tri: Plateforme (Crunchyroll > Prime > Netflix) puis Date de renouvellement
+      accountsDataRaw.sort((a, b) => {
+        if (a._rawPlatformRank !== b._rawPlatformRank) return a._rawPlatformRank - b._rawPlatformRank;
+        return a._rawRenewal - b._rawRenewal;
+      });
+
+      let accountsData = accountsDataRaw.map(item => {
+        const { _rawPlatformRank, _rawRenewal, ...rest } = item;
+        return rest;
+      });
+
+
+      // ==========================================
+      // 3. DÉPENSES
+      // ==========================================
+      // Le tri avec (Date A - Date B) classe mathématiquement par Mois PUIS par jour exact
       let sortedExpenses = [...data.expenses].sort((a, b) => new Date(a.date_exp) - new Date(b.date_exp));
+      
       let expensesData = sortedExpenses.map(e => {
         const date = new Date(e.date_exp);
         const monthYear = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
@@ -121,20 +203,16 @@ const Settings = () => {
         };
       });
 
-      // --- 4. CLIENTS ---
-      let clientsData = data.clients.map(c => ({
-        'Nom / Pseudo': c.name_clt,
-        'WhatsApp': c.whatsapp_number_clt,
-        'Note': c.note_clt || '-',
-        'Date Création': new Date(c.created_date_clt).toLocaleDateString('fr-FR')
-      }));
-      clientsData.sort((a, b) => a['Nom / Pseudo'].localeCompare(b['Nom / Pseudo']));
 
+      // ==========================================
+      // GÉNÉRATION EXCEL FINALE
+      // ==========================================
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(subsData), "Tous les Abonnements");
+      
+      // Ajout des feuilles (Annuaire client supprimé)
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(subsData), "Subscription");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(accountsData), "Comptes Fournisseurs");
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expensesData), "Dépenses");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(clientsData), "Annuaire Clients");
 
       XLSX.writeFile(wb, `Rapport_Gestion_Nero_ERP_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.xlsx`);
 
